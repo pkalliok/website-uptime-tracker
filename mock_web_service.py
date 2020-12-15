@@ -10,6 +10,7 @@ def mock_service():
 
 @mock.route('/changeResponse', methods=['POST'])
 def change_service_response():
+    global http_code, content
     params = request.json
     try: http_code = params['code']
     except KeyError: return jsonify('"code" parameter missing'), 400

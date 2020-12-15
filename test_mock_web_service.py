@@ -21,10 +21,20 @@ def test_default_response():
 def test_can_change_response():
     res = requests.post(change_url, json=dict(code=500, body='problems'))
     assert res.json() == 'ok'
-    res = requests.post(change_url, json=dict(code=200))
+    res = requests.post(change_url, json=dict(code=200, body='Hello, w'))
     assert res.json() == 'ok'
 
 def test_failed_change_response():
     res = requests.post(change_url, json=dict(foo=0))
     assert res.status_code == 400
+
+def test_changing_affects_service():
+    res = requests.post(change_url, json=dict(code=500, body='illuminati!'))
+    assert res.json() == 'ok'
+    assert requests.get(service_url).status_code == 500
+    res = requests.post(change_url, json=dict(code=200, body='Hello, no prob!'))
+    assert res.json() == 'ok'
+    res = requests.get(service_url)
+    assert res.status_code == 200
+    assert res.text.startswith('Hello, no prob')
 
