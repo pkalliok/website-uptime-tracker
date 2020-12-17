@@ -3,6 +3,7 @@
 kafka.key
 kafka.cert
 kafka.host
+pg-creds.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

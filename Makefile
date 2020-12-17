@@ -18,6 +18,9 @@ kafka.cert: stamps/setup-kafka
 kafka.host: stamps/setup-kafka
 	jq -r '.service_uri' $< > $@
 
+pg-creds.json: stamps/setup-postgres
+	jq '.connection_info.pg_params[0]' $< > $@
+
 stamps/setup-postgres: stamps/aiven-login
 	./myenv/bin/avn service create -p startup-4 -t pg $(PG_SERVICE_NAME)
 	./myenv/bin/avn service wait $(PG_SERVICE_NAME)
