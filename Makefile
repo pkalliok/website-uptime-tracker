@@ -28,8 +28,10 @@ stamps/setup-kafka: stamps/aiven-login
 		$(KAFKA_SERVICE_NAME)
 	./myenv/bin/avn service wait $(KAFKA_SERVICE_NAME)
 	./myenv/bin/avn service user-create \
-		--username $(KAFKA_SERVICE_NAME)_user $(KAFKA_SERVICE_NAME) \
-		> $@
+		--username $(KAFKA_SERVICE_NAME)_user $(KAFKA_SERVICE_NAME)
+	./myenv/bin/avn service topic-create \
+		--partitions 1 --replication 2 $(KAFKA_SERVICE_NAME) uptime
+	touch $@
 
 stamps/aiven-login: stamps/install-deps
 	./myenv/bin/avn user login $(AIVEN_ACCOUNT)
