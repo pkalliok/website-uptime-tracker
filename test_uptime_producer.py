@@ -38,7 +38,7 @@ def get_kafka_message():
     return loads(messages[0].value.decode('utf-8'))
 
 def test_working_site():
-    assert len(kafka_cons.poll(timeout_ms=1000)) == 0
+    assert len(kafka_cons.poll()) == 0
     report_uptime(service_url, lambda body: True, kafka_prod, 'uptime')
     msg = get_kafka_message()
     assert msg['httpStatus'] == 200
@@ -46,7 +46,7 @@ def test_working_site():
     assert msg['delay'] < 1
 
 def test_failing_site():
-    assert len(kafka_cons.poll(timeout_ms=1000)) == 0
+    assert len(kafka_cons.poll()) == 0
     assert requests.post(change_url, json=dict(code=503, body='sorryy')).json() == 'ok'
     report_uptime(service_url, lambda body: True, kafka_prod, 'uptime')
     msg = get_kafka_message()
@@ -56,7 +56,7 @@ def test_failing_site():
     assert requests.post(change_url, json=dict(code=200, body='Hello, again')).json() == 'ok'
 
 def test_failing_content():
-    assert len(kafka_cons.poll(timeout_ms=1000)) == 0
+    assert len(kafka_cons.poll()) == 0
     assert requests.post(change_url, json=dict(code=200, body='Something went wrong.')).json() == 'ok'
     report_uptime(service_url, lambda body: body.startswith('Hello,'), kafka_prod, 'uptime')
     assert get_kafka_message()['passes'] == False
@@ -65,7 +65,7 @@ def test_failing_content():
     assert get_kafka_message()['passes'] == True
 
 def test_missing_kafka():
-    assert len(kafka_cons.poll(timeout_ms=1000)) == 0
+    assert len(kafka_cons.poll()) == 0
     report_uptime(service_url, lambda body: False, None, 'uptime')
     assert len(kafka_cons.poll(timeout_ms=1000)) == 0
 
