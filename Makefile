@@ -1,9 +1,29 @@
 
+AIVEN_ACCOUNT = panu.kalliokoski@sange.fi
+KAFKA_SERVICE_NAME = uptime-test-kafka
+
 .PHONY: test
 test: stamps/run-tests
 
 stamps/run-tests: $(wildcard *.py) stamps/install-deps
 	./myenv/bin/nose2
+
+stamps/kafka-credentials: stamps/setup-kafka
+	./myenv/bin/avn service get --json $(KAFKA_SERVICE_NAME) \
+	| jq '.users|map(select(.username=="$(KAFKA_SERVICE_NAME)_user"))|.[]' \
+	> $@
+
+stamps/setup-kafka: stamps/aiven-login
+	./myenv/bin/avn service create -p startup-2 -t kafka \
+		$(KAFKA_SERVICE_NAME)
+	./myenv/bin/avn service wait $(KAFKA_SERVICE_NAME)
+	./myenv/bin/avn service user-create \
+		--username $(KAFKA_SERVICE_NAME)_user $(KAFKA_SERVICE_NAME) \
+		> $@
+
+stamps/aiven-login: stamps/install-deps
+	./myenv/bin/avn user login $(AIVEN_ACCOUNT)
+	touch $@
 
 .PHONY: try-mock
 try-mock: stamps/install-deps
@@ -15,3 +35,4 @@ stamps/install-deps: requirements.txt myenv
 
 myenv:
 	python3 -m venv myenv
+
