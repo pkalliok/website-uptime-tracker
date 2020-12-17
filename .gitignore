@@ -3,6 +3,7 @@
 kafka.key
 kafka.cert
 kafka.host
+kafka.ca
 pg-creds.json
 
 # Byte-compiled / optimized / DLL files

@@ -9,6 +9,9 @@ test: stamps/run-tests
 stamps/run-tests: $(wildcard *.py) stamps/install-deps
 	./myenv/bin/nose2
 
+kafka.ca: stamps/aiven-login
+	./myenv/bin/avn project ca-get --target-filepath $@
+
 kafka.key: stamps/setup-kafka
 	jq -r '.connection_info.kafka_access_key' $< > $@
 
