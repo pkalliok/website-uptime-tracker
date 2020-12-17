@@ -23,11 +23,14 @@ def set_up_kafka():
         group_id='test-consumer',
         **kafka_credentials
     )
-    kafka_cons.poll(timeout_ms=1000)
+    for _ in range(2): kafka_cons.poll(timeout_ms=1000)
 
 def setUpModule():
     run_mock_service_in_background()
     set_up_kafka()
+
+def tearDownModule():
+    kafka_cons.commit()
 
 def get_kafka_message():
     messages = next(iter(kafka_cons.poll(timeout_ms=1000).values()))
