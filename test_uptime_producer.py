@@ -17,13 +17,18 @@ def set_up_kafka_consumer():
     global kafka_cons
     kafka_cons = KafkaConsumer(
         "uptime",
-        auto_offset_reset='earliest',
+        group_id='test-consumer',
         **kafka_credentials
     )
+    kafka_cons.poll(timeout_ms=1000)
 
 def setUpModule():
     run_mock_service_in_background()
     set_up_kafka_consumer()
 
-def test_working_site(): pass
+def test_working_site():
+    assert len(kafka_cons.poll(timeout_ms=1000)) == 0
+    report_uptime()
+    messages = next(iter(kafka_cons.poll(timeout_ms=1000).values()))
+    assert len(messages) == 1
 
