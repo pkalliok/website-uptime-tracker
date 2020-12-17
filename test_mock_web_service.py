@@ -5,14 +5,20 @@ port = 5000
 base_url = 'http://localhost:{}/'.format(port)
 service_url = base_url + 'service'
 change_url = base_url + 'changeResponse'
+mock_thread = None
 
 def setUpModule():
+    run_mock_service_in_background()
+
+def run_mock_service_in_background():
     from mock_web_service import mock
     from threading import Thread
     from time import sleep
-    t = Thread(target=mock.run)
-    t.daemon = True
-    t.start()
+    global mock_thread
+    if mock_thread: return # mock already running
+    mock_thread = Thread(target=mock.run)
+    mock_thread.daemon = True
+    mock_thread.start()
     sleep(1) # simplest way to give the dev server time to start
 
 def test_default_response():
