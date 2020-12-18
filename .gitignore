@@ -17,6 +17,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+docker-images/
 stamps/
 develop-eggs/
 dist/

@@ -57,3 +57,18 @@ statuses.
 <pg-url> is a connection URL for the PostgreSQL database where the
 records are to be persisted.  You can get it from the Aiven console.
 
+## How to package the services for running via docker
+
+The Makefile also includes rules for building Docker images out of the
+programs.  You should run `make build-images` to build the images.  Note
+that the images are _not_ publishable: they contain Kafka credentials in
+their filesystem.  So they are OK for deployment but not release.
+
+After building, you can run these images as if they were the producer or
+consumer.  E.g. like so:
+
+```
+$ docker run -it --rm pkalliok:website-uptime-tracker-producer \
+	https://sange.fi/ --check-interval 1
+```
+

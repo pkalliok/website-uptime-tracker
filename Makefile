@@ -11,6 +11,23 @@ test: stamps/run-tests
 run-test-runner: stamps/run-tests
 	./myenv/bin/nosy
 
+.PHONY: build-images
+build-images: stamps/build-producer-image stamps/build-consumer-image
+
+stamps/build-producer-image: uptime_producer.py requirements-run.txt $(CREDENTIALS)
+	cp $^ docker-images/
+	docker build -t pkalliok:website-uptime-tracker-producer \
+		-f docker-images/producer.docker \
+		docker-images/
+	touch $@
+
+stamps/build-consumer-image: uptime_consumer.py requirements-run.txt $(CREDENTIALS)
+	cp $^ docker-images/
+	docker build -t pkalliok:website-uptime-tracker-consumer \
+		-f docker-images/consumer.docker \
+		docker-images/
+	touch $@
+
 stamps/run-tests: $(wildcard *.py) stamps/install-deps $(CREDENTIALS)
 	./myenv/bin/nose2
 

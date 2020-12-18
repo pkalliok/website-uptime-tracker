@@ -1,0 +1,5 @@
+FROM python:3.6
+COPY requirements-run.txt uptime_producer.py kafka.* ./
+RUN pip install -r requirements-run.txt
+ENTRYPOINT ["python", "uptime_producer.py"]
+CMD ["http://sange.fi/~atehwa/"]

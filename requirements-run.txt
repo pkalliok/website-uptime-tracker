@@ -1,0 +1,4 @@
+click
+kafka
+psycopg2-binary
+requests
