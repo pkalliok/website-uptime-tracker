@@ -1,5 +1,5 @@
 
-import psycopg2, json, click
+import psycopg2, json, click, sys
 from kafka import KafkaConsumer
 from datetime import datetime
 from psycopg2.errors import UniqueViolation
@@ -70,10 +70,14 @@ def process_events(kafka_consumer, conn):
 @click.option('--kafka-topic', default='uptime')
 def run(kafka_host, postgres_url,
             kafka_key_file, kafka_cert_file, kafka_ca_file, kafka_topic):
-    process_events(
-        kafka_connection(kafka_host, kafka_ca_file, kafka_key_file,
-            kafka_cert_file, kafka_topic),
-        psycopg2.connect(postgres_url))
+    while True:
+        try: process_events(
+                kafka_connection(kafka_host, kafka_ca_file, kafka_key_file,
+                    kafka_cert_file, kafka_topic),
+                psycopg2.connect(postgres_url))
+        except:
+            print('Got uncaught exception:')
+            print(sys.exc_info()[1])
 
 if __name__ == '__main__': run()
 
