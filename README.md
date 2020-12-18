@@ -31,7 +31,7 @@ a source file changes.  You can do this by `make run-test-runner`.
 Fire up two shells.  In one, run the queue producer:
 
 ```
-./myenv/bin/python uptime_producer.py <url-to-watch> --kafka-host <kafka-host>
+$ ./myenv/bin/python uptime_producer.py <url-to-watch> --kafka-host <kafka-host>
 ```
 
 ... and in the other, the consumer:
@@ -46,15 +46,15 @@ Also, you might want to get an SQL console to the uptime database:
 $ psql <pg-url>
 ```
 
-Here, <kafka-host> is the bootstrap server for connecting to Kafka; the
+Here, _kafka-host_ is the bootstrap server for connecting to Kafka; the
 setup process above saves it in `kafka.host` so you can check from
 there, but you can also get it from the Aiven console.
 
-<url-to-watch> is the web page/service you want to generate uptime
+_url-to-watch_ is the web page/service you want to generate uptime
 statistics for.  It can be any URL; nonexistent pages will cause error
 statuses.
 
-<pg-url> is a connection URL for the PostgreSQL database where the
+_pg-url_ is a connection URL for the PostgreSQL database where the
 records are to be persisted.  You can get it from the Aiven console.
 
 ## How to package the services for running via docker
