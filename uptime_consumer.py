@@ -2,6 +2,7 @@
 import psycopg2, json, click
 from kafka import KafkaConsumer
 from datetime import datetime
+from psycopg2.errors import UniqueViolation
 
 def pg_connection(filename):
     return psycopg2.connect(**json.load(open(filename)))
@@ -33,13 +34,16 @@ def ensure_event_table(conn):
 
 def persist_event(conn, event_record):
     event_record['ts'] = datetime.utcfromtimestamp(event_record['when'])
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("""
-                INSERT INTO uptime_events(
-                        url, time, http_status, delay, test_passed)
-                VALUES (%(url)s, %(ts)s, %(httpStatus)s, %(delay)s, %(passes)s::INT)
-                """, event_record)
+    try:
+        with conn:
+            with conn.cursor() as curs:
+                curs.execute("""
+                    INSERT INTO uptime_events(
+                            url, time, http_status, delay, test_passed)
+                    VALUES (%(url)s, %(ts)s, %(httpStatus)s, %(delay)s, %(passes)s::INT)
+                    """, event_record)
+    except UniqueViolation:
+        print("event already written to database -> skipping")
 
 def process_events(kafka_consumer, conn):
     for event in kafka_consumer:
