@@ -6,13 +6,12 @@ import psycopg2
 
 pg_conn = None
 
-def sql_query(query, args=None):
+def sql_query(query, args=None, has_results=True):
     with pg_conn:
         with pg_conn.cursor() as curs:
             if args: curs.execute(query, args)
-            else:
-                curs.execute(query)
-                return curs.fetchall()
+            else: curs.execute(query)
+            if has_results: return curs.fetchall()
 
 def set_up_postgres():
     global pg_conn
@@ -30,7 +29,7 @@ def ensure_event_table():
             delay FLOAT,
             test_passed INT,
             UNIQUE(time, url, http_status)
-        )""", (None,))
+        )""", has_results=False)
 
 def setUpModule():
     set_up_kafka()
@@ -38,12 +37,13 @@ def setUpModule():
 
 def test_message_is_persisted():
     ((max_id,),) = sql_query("select max(id) from uptime_events")
-    persist_event(dict(url="foo", httpStatus="200", body=""))
-    ((url, status, body),) = sql_query("""
-        select url, http_status, body
+    persist_event(pg_conn,
+            dict(url="foo", httpStatus="200", delay=0.0, passes=False))
+    ((url, status, passed),) = sql_query("""
+        select url, http_status, test_passed
         from uptime_events
-        where id > %s""", (max_id,))
+        where id > %(max_id)s""", dict(max_id=(max_id or 0)))
     assert url == 'foo'
     assert status == 200
-    assert body == ''
+    assert not passed
 
