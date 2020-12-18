@@ -15,6 +15,8 @@ kafka_credentials = dict(
         ssl_certfile='kafka.cert'
 )
 
+def give_kafka_prod(): return kafka_prod
+
 def set_up_kafka():
     global kafka_cons, kafka_prod
     if not kafka_prod: kafka_prod = KafkaProducer(**kafka_credentials)

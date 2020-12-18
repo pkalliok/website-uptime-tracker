@@ -1,7 +1,7 @@
 
 from uptime_consumer import process_events, persist_event, ensure_event_table, \
         pg_connection
-from test_uptime_producer import kafka_prod, set_up_kafka
+from test_uptime_producer import give_kafka_prod, set_up_kafka
 from json import dumps
 from threading import Thread
 from time import sleep
@@ -45,4 +45,17 @@ def test_message_is_persisted():
     assert url == 'foo'
     assert status == 200
     assert not passed
+
+def test_persist_from_kafka():
+    ((max_id,),) = sql_query("select max(id) from uptime_events")
+    message = dumps(dict(url='zoor', delay=0.1, httpStatus=200, passes=True))
+    give_kafka_prod().send('uptime', message.encode('utf-8'))
+    sleep(1) # we could in principle also wait for the offset to be committed
+    ((url, status, passed),) = sql_query("""
+        select url, http_status, test_passed
+        from uptime_events
+        where id > %(max_id)s""", dict(max_id=(max_id or 0)))
+    assert url == 'zoor'
+    assert status == 200
+    assert passed
 
