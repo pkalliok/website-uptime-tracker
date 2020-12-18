@@ -27,6 +27,7 @@ def set_up_kafka():
         **kafka_credentials
     )
     for _ in range(2): kafka_cons.poll(timeout_ms=1000)
+    kafka_cons.commit()
 
 def setUpModule():
     run_mock_service_in_background()
@@ -37,6 +38,7 @@ def tearDownModule():
 
 def get_kafka_message():
     messages = next(iter(kafka_cons.poll(timeout_ms=1000).values()))
+    kafka_cons.commit()
     assert len(messages) == 1
     return loads(messages[0].value.decode('utf-8'))
 
