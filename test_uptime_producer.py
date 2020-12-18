@@ -17,7 +17,8 @@ kafka_credentials = dict(
 
 def set_up_kafka():
     global kafka_cons, kafka_prod
-    kafka_prod = KafkaProducer(**kafka_credentials)
+    if not kafka_prod: kafka_prod = KafkaProducer(**kafka_credentials)
+    if kafka_cons: return
     kafka_cons = KafkaConsumer(
         "uptime",
         group_id='test-consumer',
