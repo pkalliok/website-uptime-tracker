@@ -44,6 +44,7 @@ def test_working_site():
     msg = get_kafka_message()
     assert msg['httpStatus'] == 200
     assert msg['passes'] == True
+    assert msg['url'] == service_url
     assert msg['delay'] < 1
 
 def test_failing_site():

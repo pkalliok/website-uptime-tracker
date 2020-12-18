@@ -19,7 +19,7 @@ def make_request(url):
 
 def report_uptime(url, check, kafka, kafka_topic):
     time, status, body = make_request(url)
-    message = dumps(dict(delay=time, httpStatus=status, passes=check(body)))
+    message = dumps(dict(url=url, delay=time, httpStatus=status, passes=check(body)))
     if kafka: kafka.send(kafka_topic, message.encode('utf-8'))
     print('Check status:', status, 'in', time, 's')
 
