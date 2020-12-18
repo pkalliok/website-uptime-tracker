@@ -6,6 +6,10 @@ PG_SERVICE_NAME = uptime-test-postgres
 .PHONY: test
 test: stamps/run-tests
 
+.PHONY: run-test-runner
+run-test-runner: stamps/run-tests
+	./myenv/bin/nosy
+
 stamps/run-tests: $(wildcard *.py) stamps/install-deps
 	./myenv/bin/nose2
 
