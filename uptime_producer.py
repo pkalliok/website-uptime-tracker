@@ -1,7 +1,7 @@
 
 import click, requests, sys, re
 from requests.exceptions import ConnectionError
-from time import sleep, perf_counter
+from time import sleep, perf_counter, time as now
 from kafka import KafkaProducer
 from json import dumps
 
@@ -19,7 +19,8 @@ def make_request(url):
 
 def report_uptime(url, check, kafka, kafka_topic):
     time, status, body = make_request(url)
-    message = dumps(dict(url=url, delay=time, httpStatus=status, passes=check(body)))
+    message = dumps(dict(url=url, when=now(), delay=time,
+        httpStatus=status, passes=check(body)))
     if kafka: kafka.send(kafka_topic, message.encode('utf-8'))
     print('Check status:', status, 'in', time, 's')
 

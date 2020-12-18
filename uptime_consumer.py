@@ -1,6 +1,7 @@
 
 import psycopg2, json, click
 from kafka import KafkaConsumer
+from datetime import datetime
 
 def pg_connection(filename):
     return psycopg2.connect(**json.load(open(filename)))
@@ -31,11 +32,13 @@ def ensure_event_table(conn):
                 )""")
 
 def persist_event(conn, event_record):
+    event_record['ts'] = datetime.utcfromtimestamp(event_record['when'])
     with conn:
         with conn.cursor() as curs:
             curs.execute("""
-                INSERT INTO uptime_events(url, http_status, delay, test_passed)
-                VALUES (%(url)s, %(httpStatus)s, %(delay)s, %(passes)s::INT)
+                INSERT INTO uptime_events(
+                        url, time, http_status, delay, test_passed)
+                VALUES (%(url)s, %(ts)s, %(httpStatus)s, %(delay)s, %(passes)s::INT)
                 """, event_record)
 
 def process_events(kafka_consumer, conn):
@@ -46,6 +49,7 @@ def process_events(kafka_consumer, conn):
             assert isinstance(message['url'], str)
             assert isinstance(message['httpStatus'], int)
             assert isinstance(message['delay'], float)
+            assert isinstance(message['when'], float)
             assert isinstance(message['passes'], bool)
         except:
             print("malformed message from Kafka:", event.value)
