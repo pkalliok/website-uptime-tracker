@@ -27,7 +27,8 @@ kafka.host: stamps/setup-kafka
 	jq -r '.service_uri' $< > $@
 
 pg-creds.json: stamps/setup-postgres
-	jq '.connection_info.pg_params[0]' $< > $@
+	jq '.connection_info.pg_params[0]' $< \
+	| sed 's/defaultdb/$(PG_SERVICE_NAME)_db/' > $@
 
 stamps/setup-postgres: stamps/aiven-login
 	./myenv/bin/avn service create -p startup-4 -t pg $(PG_SERVICE_NAME)
