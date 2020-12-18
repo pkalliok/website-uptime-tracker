@@ -47,7 +47,7 @@ def loop(url, check_pattern, check_interval, kafka_topic, **kwargs):
     if check_pattern:
         check_re = re.compile(check_pattern)
         check = lambda body: bool(check_re.match(body))
-    else: check = lambda body: len(body)
+    else: check = lambda body: len(body) > 0
     while True:
         try: report_uptime(url, check, kafka, kafka_topic)
         except:
