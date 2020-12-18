@@ -6,11 +6,6 @@ import psycopg2
 
 pg_conn = None
 
-def set_up_postgres():
-    global pg_conn
-    if pg_conn: return
-    pg_conn = psycopg2.connect(**loads(open("pg-creds.json").read()))
-
 def sql_query(query, args=None):
     with pg_conn:
         with pg_conn.cursor() as curs:
@@ -18,6 +13,24 @@ def sql_query(query, args=None):
             else:
                 curs.execute(query)
                 return curs.fetchall()
+
+def set_up_postgres():
+    global pg_conn
+    if pg_conn: return
+    pg_conn = psycopg2.connect(**loads(open("pg-creds.json").read()))
+    ensure_event_table()
+
+def ensure_event_table():
+    sql_query("""
+        CREATE TABLE IF NOT EXISTS uptime_events (
+            id SERIAL,
+            time TIMESTAMP NOT NULL DEFAULT now(),
+            url TEXT NOT NULL,
+            http_status INT NOT NULL,
+            delay FLOAT,
+            test_passed INT,
+            UNIQUE(time, url, http_status)
+        )""", (None,))
 
 def setUpModule():
     set_up_kafka()
