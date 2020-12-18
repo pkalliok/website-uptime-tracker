@@ -2,6 +2,7 @@
 AIVEN_ACCOUNT = panu.kalliokoski@sange.fi
 KAFKA_SERVICE_NAME = uptime-test-kafka
 PG_SERVICE_NAME = uptime-test-postgres
+CREDENTIALS = kafka.ca kafka.key kafka.cert kafka.host pg-creds.json
 
 .PHONY: test
 test: stamps/run-tests
@@ -10,7 +11,7 @@ test: stamps/run-tests
 run-test-runner: stamps/run-tests
 	./myenv/bin/nosy
 
-stamps/run-tests: $(wildcard *.py) stamps/install-deps
+stamps/run-tests: $(wildcard *.py) stamps/install-deps $(CREDENTIALS)
 	./myenv/bin/nose2
 
 kafka.ca: stamps/aiven-login
