@@ -1,8 +1,20 @@
 
 import psycopg2, json
+from kafka import KafkaConsumer
 
 def pg_connection(filename):
     return psycopg2.connect(**json.load(open(filename)))
+
+def kafka_connection(bs_host, cafile, keyfile, certfile):
+    return KafkaConsumer(
+        "uptime",
+        group_id='uptime-postgresql-persister',
+        bootstrap_servers=bs_host,
+        security_protocol='SSL',
+        ssl_cafile=cafile,
+        ssl_keyfile=keyfile,
+        ssl_certfile=certfile,
+    )
 
 def ensure_event_table(conn):
     with conn:
@@ -26,4 +38,5 @@ def persist_event(conn, event_record):
                 VALUES (%(url)s, %(httpStatus)s, %(delay)s, %(passes)s::INT)
                 """, event_record)
 
-def process_events(): pass
+def process_events(kafka_consumer, conn):
+    for event in kafka_consumer: pass

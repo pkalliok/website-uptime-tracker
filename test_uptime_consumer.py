@@ -1,6 +1,6 @@
 
 from uptime_consumer import process_events, persist_event, ensure_event_table, \
-        pg_connection
+        pg_connection, kafka_connection
 from test_uptime_producer import give_kafka_prod, set_up_kafka
 from json import dumps
 from threading import Thread
@@ -25,7 +25,10 @@ def set_up_postgres():
 def run_consumer_in_background():
     global consumer_thread
     if consumer_thread: return
-    consumer_thread = Thread(target=process_events)
+    kafka_consumer = kafka_connection(open('kafka.host').read(),
+            'kafka.ca', 'kafka.key', 'kafka.cert')
+    consumer_thread = Thread(
+            target=lambda: process_events(kafka_consumer, pg_conn))
     consumer_thread.daemon = True
     consumer_thread.start()
 
